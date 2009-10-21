@@ -8,12 +8,12 @@
 # for the setup, I have followed the instructions here:
 # http://articles.slicehost.com/2009/2/20/ubuntu-intrepid-thin-web-server-for-ruby
 
-# the server is deployed in /var/www/liftium
-$ cd /var/www/liftium; git pull
+# the server is deployed in /var/www/graphserver
+$ cd /var/www/graphserver; git pull
 
 # the server is managed by thin. A symlink should exist from /etc/thin:
 # this link is maintained by puppet.
-$ sudo ln -s /var/www/liftium/graphserver/thin.yml /etc/thin/graphserver.yml
+$ sudo ln -s /var/www/graphserver/thin.yml /etc/thin/graphserver.yml
 
 # to restart the server:
 $ sudo /etc/init.d/thin restart
