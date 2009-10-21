@@ -20,3 +20,5 @@ $ sudo /etc/init.d/thin restart
 
 # log will be under /var/log:
 $ tail -f /var/log/thin.4567.log
+
+
