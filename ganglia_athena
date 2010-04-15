@@ -1,0 +1,35 @@
+#!/usr/bin/ruby
+
+require 'net/http'
+require 'uri'
+require 'pp'
+
+# Get network stats
+stat_list = Net::HTTP.get URI.parse("http://delivery.liftium.com/ganglia_export")
+stat_list.split("\n").each do |line|
+  url =  URI.parse(line)
+  network_id = /network_id=(.*)/.match(url.query).captures
+  network_metrics = Net::HTTP.get url
+  network_metrics.split("\n").each do |tag|
+    opt = {}
+    tag.gsub! /:\s/, ':'
+    tag.split.each do |metric|
+      key, value = metric.split(":")
+      opt[key] = value
+    end
+    rrd_name = "liftium_#{network_id}_#{opt['tag_id']}"
+    system "/usr/bin/gmetric --type=float --name='#{rrd_name}_attempts' --value=#{opt['attempts']} --unit='ads/s'"
+    system "/usr/bin/gmetric --type=float --name='#{rrd_name}_loads' --value=#{opt['loads']} --unit='ads/s'"
+    system "/usr/bin/gmetric --type=float --name='#{rrd_name}_rejects' --value=#{opt['rejects']} --unit='ads/s'"
+  end
+end
+
+# Grab extra stats
+misc_stats = Net::HTTP.get URI.parse('http://delivery.liftium.com/ganglia_export?list_type=misc')
+
+misc_stats.split("\n").each do |line|
+  line.gsub! /:\s/, ':'
+  stat_name, value = line.split(":")
+  system "/usr/bin/gmetric --type=uint32 --name='liftium_#{stat_name}' --value=#{value} --unit='per min'"
+end
+
